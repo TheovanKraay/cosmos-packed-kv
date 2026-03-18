@@ -468,11 +468,6 @@ The CI pipeline (`.github/workflows/python-build-and-test.yml`) automatically:
 ## Documentation
 
 - **Architecture & Design Decisions**: [ARCHITECTURE.md](ARCHITECTURE.md)
-- Spec: [specs/001-cosmos-packed-crud/spec.md](specs/001-cosmos-packed-crud/spec.md)
-- Plan: [specs/001-cosmos-packed-crud/plan.md](specs/001-cosmos-packed-crud/plan.md)
-- Contracts: [specs/001-cosmos-packed-crud/contracts/](specs/001-cosmos-packed-crud/contracts/)
-- Data Model: [specs/001-cosmos-packed-crud/data-model.md](specs/001-cosmos-packed-crud/data-model.md)
-- Quickstart (spec): [specs/001-cosmos-packed-crud/quickstart.md](specs/001-cosmos-packed-crud/quickstart.md)
 
 ---
 

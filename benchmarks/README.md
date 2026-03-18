@@ -182,9 +182,9 @@ Results from live benchmarks against an Azure Cosmos DB account (hub region: **U
 
 | Scale | Items | Container RU/s | Prefix length | Buckets | Time | Throughput | Failures |
 |------:|------:|---------------:|--------------:|--------:|-----:|-----------:|---------:|
-| **10K** | 10,000 | 10,000 | 3 | 4,096 | 64.6s | 155 items/sec | 0 |
+| **10K** | 10,000 | 10,000 | 3 | 4,096 | 28.0s | 357 items/sec | 0 |
 | **1M** | 1,000,000 | 100,000 | 4 | 65,536 | 190.9s (3.2 min) | 5,239 items/sec | 0 |
-| **10M** | 10,000,000 | 100,000 | 4 | 65,536 | 566.2s (9.4 min) | 17,661 items/sec | 0 |
+| **10M** | 10,000,000 | 100,000 | 4 | 65,536 | 736.2s (12.3 min) | 13,583 items/sec | 0 |
 | **300M** | ~74M (partial) | 100,000 | 4 | 65,536 | -- | ~15-17K items/sec | 0 |
 
 ### Point read latency
@@ -193,9 +193,9 @@ Random point reads via `PackedContainerProxy.read_item()` after ingestion:
 
 | Scale | Reads | Mean | Median | P95 | P99 | Min | Max |
 |------:|------:|-----:|-------:|----:|----:|----:|----:|
-| **10K** | 200 | 47.9ms | 43.0ms | -- | -- | 33.8ms | -- |
+| **10K** | 200 | 23.8ms | 20.8ms | 33.2ms | 92.6ms | 15.4ms | 187.1ms |
 | **1M** | 500 | 30.3ms | 26.5ms | -- | -- | 15.3ms | -- |
-| **10M** | 500 | 24.9ms | 21.9ms | 30.5ms | 36.9ms | 17.0ms | 1103.2ms |
+| **10M** | 500 | 25.1ms | 21.8ms | 38.6ms | 66.0ms | 15.7ms | 79.9ms |
 
 ### Proxy overhead analysis
 
@@ -228,7 +228,7 @@ The 300M benchmark was run with 30 waves of 10M items each (batch_size=10M, conc
   - **Patch** (≤9 entries to add): single atomic patch operation (1 Cosmos call)
   - **Read-merge-upsert** (≥10 entries): read existing bucket, merge entries in memory, upsert (2 Cosmos calls) -- avoids the `ceil(N/9)` sequential-patch bottleneck
 - **Retry with exponential backoff**: Transient errors (429, 449, 500, 503, connection errors) are retried indefinitely by default (configurable via `max_retries`). Bulk jobs slow down under pressure but never drop items.
-- The 10M test achieved 17,661 items/sec at 100K RU/s. Throughput scales with RU provisioning.
-- The 10M read latency (21.9ms median) was the best observed, benefiting from warmed connections and SDK connection pool reuse.
+- The 10M test achieved 13,583 items/sec at 100K RU/s. Throughput scales with RU provisioning.
+- The 10M read latency (21.8ms median) was the best observed, benefiting from warmed connections and SDK connection pool reuse.
 - Per-item throughput increases with denser packing: 10M items in 65,536 buckets (~153 items/bucket) is 3.4× faster per item than 1M items in 65,536 buckets (~15 items/bucket), because the fixed per-bucket Cosmos call overhead is amortised over more items.
 - The 300M run at concurrency=190 targets ~95% normalized RU saturation. At concurrency=200, the account hit ~100% → 429 retry storms.
