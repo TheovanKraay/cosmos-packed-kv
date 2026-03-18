@@ -8,7 +8,7 @@
 
 A sample library for Azure Cosmos DB that **packs many small logical items into fewer physical Cosmos documents** ("bin documents"), dramatically reducing cost and storage overhead for massive key spaces with tiny per-item payloads.
 
-Built on the **async** Azure Cosmos DB Python SDK (`azure.cosmos.aio`). All public methods are `async` coroutines -- use `await` for every call.
+Built on the **async** Azure Cosmos DB Python SDK (`azure.cosmos.aio`). All public methods are `async` coroutines - use `await` for every call.
 
 ## Key Design Guarantees
 
