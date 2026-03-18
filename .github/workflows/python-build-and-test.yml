@@ -53,24 +53,7 @@ jobs:
         shell: pwsh
         run: |
           $emulatorKey = "C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw=="
-          $endpoint = "https://localhost:8081"
-
-          # Disable SSL verification for the emulator's self-signed certificate
-          [System.Net.ServicePointManager]::ServerCertificateValidationCallback = { $true }
-          # Also set for PowerShell's Invoke-RestMethod
-          Add-Type @"
-          using System.Net;
-          using System.Net.Security;
-          using System.Security.Cryptography.X509Certificates;
-          public class TrustAllCertsPolicy : ICertificatePolicy {
-              public bool CheckValidationResult(
-                  ServicePoint srvPoint, X509Certificate certificate,
-                  WebRequest request, int certificateProblem) {
-                  return true;
-              }
-          }
-          "@
-          [System.Net.ServicePointManager]::CertificatePolicy = New-Object TrustAllCertsPolicy
+          $endpoint = "https://127.0.0.1:8081"
 
           $authKey = [System.Convert]::FromBase64String($emulatorKey)
           $hmacSha = New-Object System.Security.Cryptography.HMACSHA256
@@ -97,7 +80,7 @@ jobs:
           }
           $dbBody = '{"id": "testdb"}'
           try {
-              Invoke-RestMethod -Uri "$endpoint/dbs" -Method Post -Headers $headers -Body $dbBody
+              Invoke-RestMethod -Uri "$endpoint/dbs" -Method Post -Headers $headers -Body $dbBody -SkipCertificateCheck
               Write-Host "Database 'testdb' created."
           } catch {
               if ($_.Exception.Response.StatusCode -eq 409) {
@@ -118,7 +101,7 @@ jobs:
           }
           $containerBody = '{"id": "testcontainer", "partitionKey": {"paths": ["/pk"], "kind": "Hash"}}'
           try {
-              Invoke-RestMethod -Uri "$endpoint/dbs/testdb/colls" -Method Post -Headers $headers -Body $containerBody
+              Invoke-RestMethod -Uri "$endpoint/dbs/testdb/colls" -Method Post -Headers $headers -Body $containerBody -SkipCertificateCheck
               Write-Host "Container 'testcontainer' created."
           } catch {
               if ($_.Exception.Response.StatusCode -eq 409) {
@@ -131,7 +114,7 @@ jobs:
       - name: Run integration tests
         shell: pwsh
         env:
-          COSMOS_CONNECTION_STRING: "AccountEndpoint=https://localhost:8081/;AccountKey=C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw=="
+          COSMOS_CONNECTION_STRING: "AccountEndpoint=https://127.0.0.1:8081/;AccountKey=C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw=="
           COSMOS_DATABASE: "testdb"
           COSMOS_CONTAINER: "testcontainer"
           # Disable SSL verification for the emulator's self-signed cert
